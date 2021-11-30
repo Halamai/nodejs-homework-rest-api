@@ -1,6 +1,7 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = process.env;
 
 const userSchema = Schema(
   {
@@ -36,8 +37,6 @@ userSchema.methods.setPassword = function (password) {
 userSchema.methods.comparePassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
-
-const { JWT_SECRET } = process.env;
 
 userSchema.methods.createToken = function () {
   const payload = { _id: this._id };

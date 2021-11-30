@@ -1,6 +1,6 @@
 /* eslint-disable semi, quotes */
 
-const User = require("../schema/userSchema.js");
+const User = require("../schemas/userSchema");
 
 const signupUser = async (body) => {
   try {

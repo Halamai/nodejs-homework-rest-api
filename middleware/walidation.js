@@ -5,7 +5,7 @@ const validation = (req, res, next) => {
     name: Joi.string().required(),
     email: Joi.string().required(),
     phone: Joi.string().required(),
-  }).min(5);
+  }).min(1);
 
   const validationResult = schema.validate(req.body);
   if (validationResult.error) {

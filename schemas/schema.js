@@ -1,5 +1,7 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+// const mongoose = require("mongoose");
+// const { Schema, model } = mongoose.Schema;
+// const { Schema, model, SchemaTypes } = require("mongoose");
+const { Schema, model } = require("mongoose");
 
 const contacts = new Schema(
   {
@@ -21,10 +23,14 @@ const contacts = new Schema(
       type: Boolean,
       default: false,
     },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+    },
   }
   // { versionKey: false, timestamps: true }
 );
 
-const Contacts = mongoose.model("contacts", contacts);
+const Contacts = model("contacts", contacts);
 
 module.exports = Contacts;
