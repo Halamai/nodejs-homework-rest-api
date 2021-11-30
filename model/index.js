@@ -1,11 +1,4 @@
-// const fs = require('fs/promises')
-// const contacts = require("./contacts.json");
-// const fs = require("fs/promises");
-// const fs = require("fs").promises;
-// const path = require("path");
-// const { v4: uuidv4 } = require("uuid");
-// const contactsPath = path.join(__dirname, "contacts.json");
-const Contacts = require("../schema/schema.js");
+const Contacts = require("../schema/schema.js.js");
 
 const listContacts = async () => {
   try {
