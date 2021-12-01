@@ -1,11 +1,5 @@
-// const fs = require('fs/promises')
-// const contacts = require("./contacts.json");
-// const fs = require("fs/promises");
-// const fs = require("fs").promises;
-// const path = require("path");
-// const { v4: uuidv4 } = require("uuid");
-// const contactsPath = path.join(__dirname, "contacts.json");
-const Contacts = require("../schema/schema.js");
+// const Contacts = require("../schema/schema.js");
+const { Contacts } = require("../schemas/schema");
 
 const listContacts = async () => {
   try {
@@ -58,7 +52,7 @@ const updateContact = async (contactId, body) => {
 const updateContactStatus = async (contactId, body) => {
   try {
     const { favorite } = body;
-    const data = await Contact.findByIdAndUpdate(
+    const data = await Contacts.findByIdAndUpdate(
       contactId,
       { favorite },
       {
