@@ -8,11 +8,14 @@ const jwt = require("jsonwebtoken");
 const User = require("../schemas/userSchema.js");
 const { JWT_SECRET } = process.env;
 const authValidation = require("../middleware/auth.js");
+const fs = require("fs");
+const path = require("path");
+const Jimp = require("jimp");
+const awatarUpload = require("../middleware/awatarUpload.js");
+// console.log(awatarUpload);
 
 router.post("/signup", userValidator, async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(email);
-  console.log(password);
   try {
     const data = await User.findOne({ email });
     if (data) {
@@ -85,5 +88,42 @@ router.get("/current", authValidation, async (req, res, next) => {
     next(error);
   }
 });
+
+router.patch(
+  "/avatars",
+  authValidation,
+  awatarUpload.single("avatar"),
+
+  async (req, res, next) => {
+    const { _id } = req.user;
+    console.log(_id);
+    const { path: TMP_DIR, originalname } = req.file;
+    console.log(TMP_DIR);
+    const [fileExt] = originalname.split(".").reverse();
+    const fileName = `${_id}.${fileExt}`;
+    const DEST_DIR = path.join(__dirname, "../", "public/avatars", fileName);
+    console.log(DEST_DIR);
+
+    if (!_id) {
+      next(new NotAuthorizedErr("Not authorized"));
+    }
+    try {
+      await Jimp.read(TMP_DIR).then((originalname) => {
+        return originalname.resize(250, 250).write(TMP_DIR);
+      });
+      await fs.rename(TMP_DIR, DEST_DIR, () => {});
+      const avatar = path.join("avatars", fileName);
+      const data = await userFuncs.updAvatar(_id, avatar);
+      await res.json({
+        status: "OK",
+        code: 200,
+        avatarURL: data,
+      });
+    } catch (error) {
+      await fs.unlink(TMP_DIR, () => {});
+      next(error);
+    }
+  }
+);
 
 module.exports = router;
