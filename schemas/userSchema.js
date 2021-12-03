@@ -27,6 +27,14 @@ const userSchema = Schema(
       type: String,
       default: null,
     },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verifyToken: {
+      type: String,
+      required: [true, "Verify token is required"],
+    },
   },
   {
     versionKey: false,
@@ -45,6 +53,10 @@ userSchema.methods.comparePassword = function (password) {
 userSchema.methods.createToken = function () {
   const payload = { _id: this._id };
   return jwt.sign(payload, JWT_SECRET);
+};
+
+userSchema.methods.createAvatar = function generateAvatarUrl(email) {
+  return gravatar.url(email, { s: 200 });
 };
 
 const User = model("User", userSchema);
