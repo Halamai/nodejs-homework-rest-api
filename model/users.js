@@ -37,10 +37,21 @@ const getCurrentUser = async (_id) => {
     console.log(error.message);
   }
 };
+const updAvatar = async (_id, avatar) => {
+  try {
+    const { avatarURL } = await User.findByIdAndUpdate(_id, {
+      avatarURL: avatar,
+    });
+    return avatarURL;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
 module.exports = {
   signupUser,
   loginUser,
   logoutUser,
   getCurrentUser,
+  updAvatar,
 };

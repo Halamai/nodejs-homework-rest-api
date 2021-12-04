@@ -14,6 +14,7 @@ app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 
+app.use("/public", express.static("public"));
 app.use("/api/contacts", contactsRouter);
 app.use("/api/users", usersRouter);
 app.use(errorHandler);
