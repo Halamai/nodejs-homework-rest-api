@@ -12,6 +12,8 @@ const fs = require("fs");
 const path = require("path");
 const Jimp = require("jimp");
 const awatarUpload = require("../middleware/awatarUpload.js");
+const { v4: uuidv4 } = require("uuid");
+const sender = require("../helpers/mailer.js");
 // console.log(awatarUpload);
 
 router.post("/signup", userValidator, async (req, res, next) => {
@@ -21,9 +23,16 @@ router.post("/signup", userValidator, async (req, res, next) => {
     if (data) {
       throw new ConflictErr("User already exist, try to log in");
     }
-    const user = new User({ email });
+    const token = uuidv4();
+    const user = new User({ email, verifyToken: token });
     user.setPassword(password);
     await userFuncs.signupUser(user);
+    const msg = {
+      to: email,
+      subject: "Registration confirmation",
+      html: `<a href='http://localhost:3000/api/users/verify/${token}'>Comfirm email</a>`,
+    };
+    await sender(msg);
     res.status(201).json({
       status: "created",
       code: 201,
@@ -125,5 +134,53 @@ router.patch(
     }
   }
 );
+
+router.get("/verify/:verificationToken", async (req, res, next) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verifyToken: verificationToken });
+  if (!user) {
+    const error = new Error("Not found");
+    error.status = 404;
+    throw error;
+  }
+  const { _id } = user;
+  await User.findByIdAndUpdate(_id, {
+    verifyToken: null,
+    verify: true,
+  });
+  res.json({
+    status: "success",
+    code: 200,
+    message: "Verification successful",
+  });
+});
+
+router.post("/verify", async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) {
+    const error = new Error("missing required field email");
+    error.status = 400;
+    throw error;
+  }
+  const user = await User.findOne({ email });
+  const token = user.verifyToken;
+  if (!user.verify) {
+    const msg = {
+      to: email,
+      subject: "Registration confirmation",
+      html: `<a href="http://localhost:3000/api/users/verify/${token}">Comfirm email</a>`,
+    };
+    await sender(msg);
+  } else {
+    const error = new Error("Verification has already been passed");
+    error.status = 400;
+    throw error;
+  }
+  res.json({
+    status: "success",
+    code: 200,
+    message: "Verification email sent",
+  });
+});
 
 module.exports = router;
